@@ -15,7 +15,7 @@ type Config struct {
 
 type Server struct {
 	Host string `yaml:"host" env-required:"true"`
-	Port int32  `yaml:"port" env-required:"true"`
+	Port string `yaml:"port" env-required:"true"`
 }
 
 type Database struct {
