@@ -2,29 +2,27 @@ package main
 
 import (
 	"log/slog"
-	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/database"
+	"url-shortener/internal/logger"
 )
 
 func main() {
 	cfg := config.MustLoad()
-	log := setupLogger(cfg.Env)
-	log.Info("Config and Logger was initialized")
-}
+	log := logger.New(cfg.Env)
+	log.Info("Config and Logger was initialized", slog.String("env", cfg.Env))
+	db := database.New(cfg.Database)
 
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case "local":
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case "production":
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+	if cfg.Env == "local" {
+		_, err := db.Query(
+			`CREATE TABLE IF NOT EXISTS links (
+    					id serial PRIMARY KEY,
+    					dest VARCHAR(512),
+    					alias VARCHAR(255)
+    				);
+		`)
+		if err != nil {
+			log.Error("DB error", err)
+		}
 	}
-
-	return log
 }

@@ -1,4 +1,10 @@
-env: "local"
+env: "local" #local | production
 server:
   host: "127.0.0.1"
   port: 8000
+database:
+  host: 127.0.0.1
+  port: 5432
+  user: postgres
+  password: password
+  db: default
