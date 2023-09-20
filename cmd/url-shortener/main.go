@@ -2,9 +2,13 @@ package main
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
+	"url-shortener/cmd/url-shortener/routes"
 	"url-shortener/internal/config"
 	"url-shortener/internal/database"
 	"url-shortener/internal/logger"
@@ -22,7 +26,7 @@ func main() {
 			`CREATE TABLE IF NOT EXISTS links (
     					id serial PRIMARY KEY,
     					dest VARCHAR(512),
-    					alias VARCHAR(255)
+    					alias VARCHAR(255) UNIQUE
     				);
 		`)
 		if err != nil {
@@ -31,6 +35,13 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
+	router.Use(middleware.Timeout(60 * time.Second))
+	router.Use(render.SetContentType(render.ContentTypeJSON))
+
+	router.Get("/{alias}", routes.GetDestAndRedirect)
+	router.Post("/create", routes.CreateAlias)
 
 	err := http.ListenAndServe(cfg.Server.Port, router)
 	if err != nil {
