@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -20,16 +19,16 @@ func CreateAlias(w http.ResponseWriter, r *http.Request) {
 	cfg := config.MustLoad()
 	db := database.New(cfg.Database)
 
-	var body CreateAliasRequestBody
-	err := json.NewDecoder(r.Body).Decode(&body)
+	err := r.ParseForm()
 	if err != nil {
-		w.WriteHeader(400)
-		_, _ = w.Write([]byte("Bad request body"))
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
+	dest := r.Form.Get("dest")
+
 	alias := String(8)
-	_, err = db.Query(fmt.Sprintf("INSERT INTO links (dest, alias) VALUES ('%s', '%s')", body.Dest, alias))
+	_, err = db.Query(fmt.Sprintf("INSERT INTO links (dest, alias) VALUES ('%s', '%s')", dest, alias))
 	if err != nil {
 		w.WriteHeader(500)
 		_, _ = w.Write([]byte("Something went wrong"))

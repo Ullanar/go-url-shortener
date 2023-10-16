@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -42,10 +43,23 @@ func main() {
 
 	router.Get("/{alias}", routes.GetDestAndRedirect)
 	router.Post("/create", routes.CreateAlias)
+	router.Get("/", root)
+	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
 
 	err := http.ListenAndServe(cfg.Server.Port, router)
 	if err != nil {
 		log.Error("Error on server start:", err)
 		os.Exit(1)
 	}
+}
+
+func root(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("public/templates/index.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	tmpl.Execute(w, nil)
 }

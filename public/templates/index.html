@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #urlInput {
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #shortenButton {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #shortenedUrl {
+            margin-top: 40px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        #copyButton {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://unpkg.com/htmx.org@1.9.6"
+            integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>URL Shortener</h1>
+    <form id="shortenForm" hx-post="/create" hx-trigger="submit" hx-target="#shortenedUrl">
+        <input type="text" id="urlInput" name="dest" placeholder="Enter your URL">
+        <button id="shortenButton" type="submit">Shorten</button>
+    </form>
+    <p id="shortenedUrl" hx-swap="outerHTML">
+    </p>
+    <button id="copyButton" style="display: none" onclick="copyToClipboard()">Copy to Clipboard</button></div>
+
+<script>
+    function copyToClipboard() {
+        const responseText = document.getElementById("shortenedUrl").textContent;
+        const textArea = document.createElement("textarea");
+        textArea.value = responseText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+    }
+    function showCopyButton() {
+        console.log("test")
+        const shortenedUrl = document.getElementById("shortenedUrl");
+        const copyButton = document.getElementById("copyButton");
+
+        if (shortenedUrl.textContent.trim() !== "") {
+            copyButton.style.display = "inline-block";
+        } else {
+            copyButton.style.display = "none";
+        }
+    }
+
+    document.getElementById("shortenForm").addEventListener("htmx:afterRequest", showCopyButton);
+</script>
+</body>
+</html>
