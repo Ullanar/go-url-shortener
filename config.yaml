@@ -1,6 +1,6 @@
 env: "local" #local | production
 server:
-  host: 10.8.0.12
+  host: 127.0.0.1
   port: ":8000"
   includePort: True
   useHttps: False
