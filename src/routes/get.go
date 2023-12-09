@@ -7,10 +7,6 @@ import (
 	"url-shortener/internal/database"
 )
 
-type GetDestResponse struct {
-	dest string
-}
-
 func GetDestAndRedirect(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 
 	alias := chi.URLParam(r, "alias")
@@ -32,5 +28,4 @@ func GetDestAndRedirect(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	}
 
 	http.Redirect(w, r, link.Dest, http.StatusFound)
-	return
 }

@@ -30,7 +30,6 @@ func CreateAlias(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	}
 
 	_, _ = w.Write([]byte(makeResponseString(cfg, newAlias.Alias)))
-	return
 }
 
 func makeResponseString(cfg *config.Config, alias string) string {
