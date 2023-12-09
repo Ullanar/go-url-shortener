@@ -18,7 +18,7 @@ func GetDestAndRedirect(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	}
 	var link database.Link
 
-	result := db.Select("dest").Where("alias = ?", alias).First(&link)
+	result := db.Where(&database.Link{Alias: alias}).First(&link)
 
 	if result.Error != nil {
 		//TODO use slog

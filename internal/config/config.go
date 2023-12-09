@@ -30,8 +30,8 @@ type Database struct {
 func MustLoad() *Config {
 	configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
-		log.Print("CONFIG_PATH env was not provided \nSearching env definition in config/local.yaml")
-		configPath = "config/local.yaml"
+		log.Print("CONFIG_PATH env was not provided \nSearching env definition in config/config.yaml")
+		configPath = "config.yaml"
 	}
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		log.Fatalf("Config file not exitst in provided path: %s", configPath)
