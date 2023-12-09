@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"url-shortener/cmd/url-shortener/routes"
 	"url-shortener/internal/config"
 	"url-shortener/internal/database"
 	"url-shortener/internal/logger"
+	"url-shortener/src/routes"
 )
 
 func main() {
@@ -23,16 +23,7 @@ func main() {
 	log.Info("Database connection was initialized")
 
 	if cfg.Env == "local" {
-		_, err := db.Query(
-			`CREATE TABLE IF NOT EXISTS links (
-    					id serial PRIMARY KEY,
-    					dest VARCHAR(512),
-    					alias VARCHAR(255) UNIQUE
-    				);
-		`)
-		if err != nil {
-			log.Error("DB error", err)
-		}
+		_ = db.AutoMigrate(&database.Link{})
 	}
 
 	router := chi.NewRouter()
@@ -41,8 +32,12 @@ func main() {
 	router.Use(middleware.Timeout(60 * time.Second))
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
-	router.Get("/{alias}", routes.GetDestAndRedirect)
-	router.Post("/create", routes.CreateAlias)
+	router.Get("/{alias}", func(w http.ResponseWriter, r *http.Request) {
+		routes.GetDestAndRedirect(w, r, db)
+	})
+	router.Post("/create", func(w http.ResponseWriter, r *http.Request) {
+		routes.CreateAlias(w, r, db)
+	})
 	router.Get("/", root)
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
 

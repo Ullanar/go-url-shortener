@@ -1,10 +1,9 @@
 package config
 
 import (
+	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
-
-	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
@@ -14,8 +13,10 @@ type Config struct {
 }
 
 type Server struct {
-	Host string `yaml:"host" env-required:"true"`
-	Port string `yaml:"port" env-required:"true"`
+	Host        string `yaml:"host" env-required:"true"`
+	Port        string `yaml:"port" env-required:"true"`
+	UseHttps    bool   `yaml:"useHttps"`
+	IncludePort bool   `yaml:"includePort"`
 }
 
 type Database struct {
@@ -29,7 +30,7 @@ type Database struct {
 func MustLoad() *Config {
 	configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
-		log.Print("CONFIG_PATH env was not provided \n Searching in config/local.yaml")
+		log.Print("CONFIG_PATH env was not provided \nSearching env definition in config/local.yaml")
 		configPath = "config/local.yaml"
 	}
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
