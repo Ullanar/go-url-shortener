@@ -4,14 +4,18 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"gorm.io/gorm"
 	"html/template"
 	"net/http"
 	"time"
 	"url-shortener/api/routes"
+	"url-shortener/internal/repository"
 )
 
-func New(db *gorm.DB) *chi.Mux {
+type HTTPV1Router struct {
+	router *chi.Mux
+}
+
+func New(repository repository.Repository) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
@@ -19,10 +23,10 @@ func New(db *gorm.DB) *chi.Mux {
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	router.Get("/{alias}", func(w http.ResponseWriter, r *http.Request) {
-		routes.GetDestAndRedirect(w, r, db)
+		routes.GetDestAndRedirect(w, r, repository)
 	})
 	router.Post("/create", func(w http.ResponseWriter, r *http.Request) {
-		routes.CreateAlias(w, r, db)
+		routes.CreateAlias(w, r, repository)
 	})
 	router.Get("/", root)
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))

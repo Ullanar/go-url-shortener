@@ -6,19 +6,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"time"
 	"url-shortener/internal/config"
 )
-
-type Link struct {
-	gorm.Model
-	ID        uint `gorm:"primaryKey"`
-	Alias     string
-	Dest      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
-}
 
 func New(database config.Database) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",

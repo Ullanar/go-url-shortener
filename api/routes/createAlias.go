@@ -1,16 +1,14 @@
 package routes
 
 import (
-	"fmt"
-	"gorm.io/gorm"
 	"math/rand"
 	"net/http"
 	"time"
 	"url-shortener/internal/config"
-	"url-shortener/internal/database"
+	"url-shortener/internal/repository"
 )
 
-func CreateAlias(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+func CreateAlias(w http.ResponseWriter, r *http.Request, repository repository.Repository) {
 	cfg := config.MustLoad()
 
 	err := r.ParseForm()
@@ -19,17 +17,16 @@ func CreateAlias(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		return
 	}
 
-	newAlias := database.Link{Alias: RandomizeAlias(8), Dest: r.Form.Get("dest")}
-	result := db.Create(&newAlias)
+	alias := RandomizeAlias(8)
 
-	if result.Error != nil {
+	createErr := repository.CreateAlias(alias, r.Form.Get("dest"))
+	if createErr != nil {
 		w.WriteHeader(500)
-		fmt.Println(result.Error)
 		_, _ = w.Write([]byte("Something went wrong"))
 		return
 	}
 
-	_, _ = w.Write([]byte(makeResponseString(cfg, newAlias.Alias)))
+	_, _ = w.Write([]byte(makeResponseString(cfg, alias)))
 }
 
 func makeResponseString(cfg *config.Config, alias string) string {
